@@ -1,0 +1,30 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* Custom Awal Bros Teal palette overriding default blue */
+    --color-blue-50: #eefafb;
+    --color-blue-100: #d4f1f4;
+    --color-blue-200: #aee2e7;
+    --color-blue-300: #78ccd5;
+    --color-blue-400: #3db0bd;
+    --color-blue-500: #1b95a2;
+    --color-blue-600: #009da5;
+    --color-blue-700: #057b83;
+    --color-blue-800: #0a646c;
+    --color-blue-900: #0e535a;
+    --color-blue-950: #06373d;
+}
+
+/* Gradient background utilities */
+.bg-gradient-to-br { background-image: linear-gradient(to bottom right, #38b2ac, #3b82f6, #6366f1); }
+
+/* Glass effect utility */
+.glass { @apply bg-white/70 backdrop-blur-lg rounded-xl shadow-xl; }
