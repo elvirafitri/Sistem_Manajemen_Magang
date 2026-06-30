@@ -42,7 +42,7 @@
                         <td class="px-6 py-4 text-right font-medium">
                             <a class="text-blue-600 hover:text-blue-900 hover:underline transition-colors mr-3" href="{{ route('admin.peserta.show', $p) }}">Detail</a>
                             <a class="text-indigo-600 hover:text-indigo-900 hover:underline transition-colors mr-3" href="{{ route('admin.peserta.edit', $p) }}">Ubah</a>
-                            <form action="{{ route('admin.peserta.destroy', $p) }}" method="post" class="inline" onsubmit="return confirm('Hapus peserta ini?');">
+                            <form action="{{ route('admin.peserta.destroy', $p) }}" method="post" class="inline" onsubmit="return confirm('Apa Anda Yakin Ingin Menghapus Peserta Ini?');">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="text-rose-600 hover:text-rose-900 hover:underline transition-colors">Hapus</button>
                             </form>

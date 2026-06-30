@@ -8,7 +8,6 @@
     <h1 class="text-2xl font-bold text-slate-800">Profil Peserta</h1>
     <div class="flex gap-2">
         <a href="{{ route('admin.peserta.edit', $peserta) }}" class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">Edit Profil</a>
-        <a href="{{ route('admin.peserta.index') }}" class="rounded-lg bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-900 transition-colors">Kembali</a>
     </div>
 </div>
 
