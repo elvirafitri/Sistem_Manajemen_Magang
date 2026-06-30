@@ -18,7 +18,6 @@
             <p class="mt-0.5 text-sm font-medium text-slate-500 font-mono">NIM {{ $peserta->nim ?? '-' }}</p>
         </div>
     </div>
-    <a href="{{ route('pembimbing.evaluation.index') }}" class="text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors">← Kembali ke daftar</a>
 </div>
 
 <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden w-full">

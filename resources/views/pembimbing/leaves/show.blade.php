@@ -9,7 +9,6 @@
         <h1 class="text-2xl font-bold tracking-tight text-slate-900">Detail Pengajuan</h1>
         <p class="mt-1 text-sm text-slate-500">Tinjau informasi perizinan/sakit peserta sebelum menyetujui.</p>
     </div>
-    <a href="{{ route('pembimbing.leaves.index') }}" class="text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors">← Kembali ke daftar</a>
 </div>
 
 <div class="overflow-hidden rounded-[14px] border border-slate-200/80 bg-white shadow-sm">

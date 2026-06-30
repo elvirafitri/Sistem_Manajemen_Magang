@@ -6,7 +6,6 @@
 @section('content')
 <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
     <h1 class="text-xl font-bold text-slate-800">Tambah Peserta Baru</h1>
-    <a href="{{ route('admin.peserta.index') }}" class="text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors"></a>
 </div>
 
 <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">

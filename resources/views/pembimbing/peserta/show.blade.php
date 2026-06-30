@@ -6,9 +6,6 @@
 @section('content')
 <div class="mb-6 flex items-center justify-between">
     <h1 class="text-2xl font-bold text-slate-800">Profil Peserta</h1>
-    <div class="flex gap-2">
-        <a href="{{ route('pembimbing.peserta.index') }}" class="rounded-lg bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-900 transition-colors">Kembali</a>
-    </div>
 </div>
 
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
