@@ -25,9 +25,8 @@
                 @php
                     $evalExists = !is_null($eval);
                     $syaratList = [
-                        ['text' => 'Penilaian akhir telah diberikan oleh pembimbing', 'status' => $evalExists],
-                        ['text' => 'Status penilaian sudah di-finalisasi (bukan draft)', 'status' => $evalExists && $eval->is_final],
                         ['text' => 'Data profil magang sudah dilengkapi (NIM, dll.)', 'status' => !empty($profile->nim)],
+                        ['text' => 'Penilaian akhir telah diberikan oleh pembimbing', 'status' => $evalExists],
                         ['text' => 'Sertifikat telah diterbitkan oleh Admin', 'status' => !is_null($certificate)],
                     ];
                 @endphp
