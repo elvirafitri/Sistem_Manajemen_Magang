@@ -21,7 +21,7 @@ class PenilaianController extends Controller
     {
         $profile = Auth::user()->pembimbingProfile;
         $peserta = PesertaProfile::query()
-            ->with(['user', 'evaluations' => fn ($q) => $q->latest()])
+            ->with(['user', 'evaluations' => fn($q) => $q->latest()])
             ->where('pembimbing_id', $profile?->id)
             ->orderBy('nim')
             ->get();
@@ -66,15 +66,37 @@ class PenilaianController extends Controller
             'is_final' => ['nullable', 'boolean'],
         ];
         foreach ($rubrics as $r) {
-            $rules['nilai_'.$r->id] = ['required', 'numeric', 'min:0', 'max:100'];
+            $rules['nilai_' . $r->id] = ['required', 'numeric', 'min:0', 'max:100'];
         }
 
         $data = $request->validate($rules);
 
-        DB::transaction(function () use ($data, $peserta, $profile, $rubrics, $scoreSvc, $request): void {
+        // Cek apakah penilaian sudah difinalisasi
+        $evaluation = Evaluation::where('peserta_profile_id', $peserta->id)->first();
+
+        if ($evaluation && $evaluation->is_final) {
+            return redirect()
+                ->route('pembimbing.evaluation.index')
+                ->with('error', 'Penilaian sudah difinalisasi dan tidak dapat diubah lagi.');
+        }
+
+        DB::transaction(function () use (
+            $data,
+            $peserta,
+            $profile,
+            $rubrics,
+            $scoreSvc,
+            $request
+        ) {
+
             $evaluation = Evaluation::query()->firstOrCreate(
-                ['peserta_profile_id' => $peserta->id],
-                ['pembimbing_profile_id' => $profile?->id]
+                [
+                    'peserta_profile_id' => $peserta->id
+                ],
+                [
+                    'pembimbing_profile_id' => $profile?->id,
+                    'is_final' => false
+                ]
             );
 
             if ($evaluation->pembimbing_profile_id !== $profile?->id) {
@@ -82,7 +104,7 @@ class PenilaianController extends Controller
             }
 
             foreach ($rubrics as $r) {
-                $nilai = (float) $data['nilai_'.$r->id];
+                $nilai = (float) $data['nilai_' . $r->id];
                 EvaluationRubricScore::query()->updateOrCreate(
                     [
                         'evaluation_id' => $evaluation->id,
@@ -127,7 +149,7 @@ class PenilaianController extends Controller
         $profile = $peserta;
 
         $pdf = Pdf::loadView('pdf.evaluation', compact('evaluation', 'profile'));
-        
+
         return $pdf->download('Penilaian_Magang_' . $profile->nim . '.pdf');
     }
 }

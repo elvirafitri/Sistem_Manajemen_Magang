@@ -14,13 +14,17 @@ class PenilaianController extends Controller
     public function index(): View
     {
         $profile = Auth::user()->pesertaProfile;
-        
+
         if (!$profile) {
             abort(404, 'Profil peserta tidak ditemukan.');
         }
 
-        $evaluation = Evaluation::with(['pembimbingProfile.user', 'rubricScores.rubric'])
+        $evaluation = Evaluation::with([
+            'pembimbingProfile.user',
+            'rubricScores.rubric'
+        ])
             ->where('peserta_profile_id', $profile->id)
+            ->where('is_final', true)
             ->first();
 
         return view('peserta.evaluation.index', compact('evaluation', 'profile'));
@@ -29,13 +33,14 @@ class PenilaianController extends Controller
     public function download()
     {
         $profile = Auth::user()->pesertaProfile;
-        
+
         if (!$profile) {
             abort(404);
         }
 
         $evaluation = Evaluation::with(['pembimbingProfile.user', 'rubricScores.rubric'])
             ->where('peserta_profile_id', $profile->id)
+            ->where('is_final', true)
             ->first();
 
         if (!$evaluation || !$evaluation->is_final) {
@@ -43,7 +48,7 @@ class PenilaianController extends Controller
         }
 
         $pdf = Pdf::loadView('pdf.evaluation', compact('evaluation', 'profile'));
-        
+
         return $pdf->download('Penilaian_Magang_' . $profile->nim . '.pdf');
     }
 }

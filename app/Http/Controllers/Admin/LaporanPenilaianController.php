@@ -20,6 +20,7 @@ class LaporanPenilaianController extends Controller
 
         $q = Evaluation::query()
             ->with(['pesertaProfile.user', 'pembimbingProfile.user', 'rubricScores.rubric'])
+            ->where('is_final', true) // hanya tampilkan yang final
             ->orderByDesc('updated_at');
 
         if ($pembimbingId) {
@@ -37,7 +38,7 @@ class LaporanPenilaianController extends Controller
         }
 
         $rows = $q->paginate(20)->withQueryString();
-        
+
         $pembimbingList = \App\Models\PembimbingProfile::query()->with('user')->get();
 
         $pesertaListQuery = PesertaProfile::query()->with('user')->orderBy('nim');
@@ -55,7 +56,8 @@ class LaporanPenilaianController extends Controller
         $pembimbingId = $request->integer('pembimbing_id') ?: null;
 
         $q = Evaluation::query()
-            ->with(['pesertaProfile.user', 'pembimbingProfile.user']);
+            ->with(['pesertaProfile.user', 'pembimbingProfile.user'])
+            ->where('is_final', true);
 
         if ($pembimbingId) {
             $q->where('pembimbing_profile_id', $pembimbingId);
@@ -65,7 +67,7 @@ class LaporanPenilaianController extends Controller
             $q->where('peserta_profile_id', $pesertaId);
         }
 
-        $filename = 'penilaian-magang-'.now()->format('Y-m-d-His').'.csv';
+        $filename = 'penilaian-magang-' . now()->format('Y-m-d-His') . '.csv';
 
         return response()->streamDownload(function () use ($q): void {
             $out = fopen('php://output', 'w');
@@ -94,7 +96,7 @@ class LaporanPenilaianController extends Controller
     public function download(Evaluation $evaluation)
     {
         $evaluation->load(['pesertaProfile.user', 'pembimbingProfile.user', 'rubricScores.rubric']);
-        
+
         if (!$evaluation->is_final) {
             return redirect()->back()->with('error', 'Penilaian belum final.');
         }
@@ -102,7 +104,7 @@ class LaporanPenilaianController extends Controller
         $profile = $evaluation->pesertaProfile;
 
         $pdf = Pdf::loadView('pdf.evaluation', compact('evaluation', 'profile'));
-        
+
         return $pdf->download('Penilaian_Magang_' . $profile->nim . '.pdf');
     }
 }
