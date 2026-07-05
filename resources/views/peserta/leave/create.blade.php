@@ -9,7 +9,6 @@
         <h1 class="text-2xl font-bold tracking-tight text-slate-900">Formulir Pengajuan</h1>
         <p class="mt-1 text-sm text-slate-500">Ajukan izin atau sakit beserta bukti lampiran untuk dikonfirmasi pembimbing.</p>
     </div>
-
 </div>
 
 <div class="rounded-[14px] border border-slate-200 bg-white p-6 shadow-sm md:p-8 transition-all hover:shadow-md hover:border-slate-300">

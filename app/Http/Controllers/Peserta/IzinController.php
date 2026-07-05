@@ -14,12 +14,12 @@ class IzinController extends Controller
     public function create(): View
     {
         $profile = Auth::user()->pesertaProfile;
-        
+
         $history = LeaveRequest::query()
             ->where('peserta_profile_id', $profile?->id)
             ->latest()
             ->get();
-            
+
         return view('peserta.leave.create', compact('history'));
     }
 
@@ -54,7 +54,7 @@ class IzinController extends Controller
 
         $buktiPath = null;
         if ($request->hasFile('bukti')) {
-            $buktiPath = $request->file('bukti')->store('bukti-izin/'.$profile->id, 'public');
+            $buktiPath = $request->file('bukti')->store('bukti-izin/' . $profile->id, 'public');
         }
 
         LeaveRequest::query()->create([
@@ -67,6 +67,6 @@ class IzinController extends Controller
             'status' => 'pending',
         ]);
 
-        return redirect()->route('peserta.dashboard')->with('success', 'Pengajuan izin/sakit dikirim. Menunggu verifikasi pembimbing.');
+        return redirect()->back()->with('success', 'Pengajuan izin/sakit berhasil dikirim dan sedang menunggu verifikasi pembimbing.');
     }
 }
