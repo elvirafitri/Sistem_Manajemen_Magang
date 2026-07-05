@@ -33,7 +33,7 @@ class SertifikatController extends Controller
 
         return redirect()
             ->route('admin.sertifikat.page')
-            ->with('success', 'Sertifikat PDF berhasil dibuat/diperbarui.');
+            ->with('success', 'Sertifikat PDF berhasil diterbitkan.');
     }
 
     public function download(Certificate $certificate): BinaryFileResponse|RedirectResponse
@@ -44,7 +44,7 @@ class SertifikatController extends Controller
 
         return response()->download(
             Storage::disk('public')->path($certificate->file_path),
-            'sertifikat-magang-'.$certificate->pesertaProfile->nim.'-BARU.pdf'
+            'sertifikat-magang-'.$certificate->pesertaProfile->nim.'.pdf'
         );
     }
 }

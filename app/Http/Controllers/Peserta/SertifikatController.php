@@ -60,7 +60,7 @@ class SertifikatController extends Controller
 
         return response()->download(
             Storage::disk('public')->path($certificate->file_path),
-            'sertifikat-magang-'.$profile->nim.'-BARU.pdf'
+            'sertifikat-magang-' . $profile->nim . '.pdf'
         );
     }
 
@@ -68,13 +68,13 @@ class SertifikatController extends Controller
     {
         $profile = Auth::user()->pesertaProfile;
         $certificate = Certificate::query()->where('peserta_profile_id', $profile?->id)->first();
-        
+
         if (!$certificate) {
             return redirect()->route('peserta.certificate')->with('error', 'Sertifikat belum diterbitkan oleh Admin.');
         }
 
         $cert->generateOrRefresh($profile);
 
-        return redirect()->route('peserta.certificate')->with('success', 'Sertifikat diperbarui.');
+        return redirect()->route('peserta.certificate')->with('success', 'Sertifikat diterbitkan.');
     }
 }
