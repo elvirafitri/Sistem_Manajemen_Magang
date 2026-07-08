@@ -14,36 +14,38 @@ class AbsensiController extends Controller
     {
         $pesertaId = $request->integer('peserta_id') ?: null;
         $pembimbingId = $request->integer('pembimbing_id') ?: null;
-        
+
         $q = Attendance::query()
             ->with(['pesertaProfile.user'])
             ->orderByDesc('tanggal')
-            ->orderByDesc('id');
+            ->orderByDesc('check_in_at');
+
+        // ... baris code filter pembimbing / peserta sebelumnya ...
 
         if ($pesertaId) {
             $q->where('peserta_profile_id', $pesertaId);
         } elseif ($pembimbingId) {
-            $q->whereHas('pesertaProfile', function($query) use ($pembimbingId) {
+            $q->whereHas('pesertaProfile', function ($query) use ($pembimbingId) {
                 $query->where('pembimbing_id', $pembimbingId);
             });
         }
 
-        $rows = $q->paginate(30)->withQueryString();
-        
-        // Summary recap for the current filtered list
+        // 1. PINDAHKAN CALCULATION SUMMARY KE SINI (Sebelum Paginate)
         $summary = [
             'hadir' => (clone $q)->where('status', 'hadir')->count(),
-            'izin' => (clone $q)->where('status', 'izin')->count(),
+            'izin'  => (clone $q)->where('status', 'izin')->count(),
             'sakit' => (clone $q)->where('status', 'sakit')->count(),
-            'alpha' => (clone $q)->where('status', 'alpa')->count(),
+            'alpha' => (clone $q)->where('status', 'alpa')->count(), // Pastikan key-nya 'alpha' sesuai dengan Blade view
         ];
-        
+
+        // 2. JALANKAN PAGINASI SETELAH SUMMARY DIHITUNG
+        $rows = $q->paginate(30)->withQueryString();
+
         $pesertaListQuery = PesertaProfile::query()->with(['user', 'pembimbing'])->orderBy('nim');
-        if ($pembimbingId) {
-            $pesertaListQuery->where('pembimbing_id', $pembimbingId);
-        }
+        // ... sisa code ke bawah tetap sama ...
+
         $pesertaList = $pesertaListQuery->get();
-        
+
         $pembimbingList = \App\Models\PembimbingProfile::query()->with('user')->orderBy('id')->get();
 
         return view('admin.attendance.index', compact('rows', 'pesertaList', 'pesertaId', 'pembimbingList', 'pembimbingId', 'summary'));
