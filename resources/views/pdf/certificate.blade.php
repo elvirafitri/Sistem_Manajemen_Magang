@@ -11,7 +11,7 @@ $data = file_get_contents($path);
 return 'data:font/truetype;base64,' . base64_encode($data);
 }
 
-$bgBase64 = getBase64Image(public_path('template/sertifikat_botania_v2.jpeg'));
+$bgBase64 = getBase64Image(public_path('template/sertifikat_botania_terbaru.jpeg'));
 $fontMontB = getBase64Font(public_path('fonts/Montserrat-ExtraBold.ttf'));
 $fontMontSB = getBase64Font(public_path('fonts/Montserrat-SemiBold.ttf'));
 
