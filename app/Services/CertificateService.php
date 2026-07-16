@@ -24,7 +24,7 @@ class CertificateService
             ->latest()
             ->first();
 
-        $scores = $eval ? $eval->rubricScores->map(function($rs) {
+        $scores = $eval ? $eval->rubricScores->map(function ($rs) {
             $rs->predicate = $this->getPredicate($rs->nilai);
             return $rs;
         }) : collect();
@@ -34,7 +34,7 @@ class CertificateService
         $persen = $this->attendanceStats->attendancePercent($peserta);
 
         $nomor = 'CERT-' . now()->format('Y') . '-' . str_pad((string) $peserta->id, 5, '0', STR_PAD_LEFT);
-        
+
         // Logo Path for PDF (Only process if GD extension is available)
         $logoPath = public_path('storage/avatars/logo-rs-awalbros.png');
         $logo = null;
@@ -48,6 +48,8 @@ class CertificateService
 
         $programName = str_contains(strtolower($peserta->peserta_type ?? ''), 'pkl') ? 'PKL' : 'MAGANG';
 
+        $predikat = $this->getPredicate($average_nilai);
+
         $pdf = Pdf::setOptions([
             'isHtml5ParserEnabled' => true,
             'isRemoteEnabled' => true
@@ -55,7 +57,8 @@ class CertificateService
             'peserta' => $peserta->load(['user', 'pembimbing.user']),
             'nomor' => $nomor,
             'kehadiran' => $persen,
-            'nilai' => $average_nilai,
+            'nilai' => number_format($average_nilai, 2),
+            'predikat' => $predikat,
             'total' => $total_nilai,
             'scores' => $scores,
             'tanggal' => now(),
