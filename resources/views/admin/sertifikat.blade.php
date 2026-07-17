@@ -16,22 +16,26 @@
         <div class="px-8 py-7">
             <form action="{{ route('admin.sertifikat.generate') }}" method="post" class="flex flex-col gap-6">
                 @csrf
-                
+
                 {{-- Pembimbing Dropdown --}}
                 <div>
                     <label class="mb-2 block text-sm font-semibold text-slate-700" for="pembimbing_id">Filter Pembimbing</label>
                     <div class="relative transition-all duration-200">
                         <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
-                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
                         </div>
                         <select id="pembimbing_id" class="block w-full appearance-none rounded-xl border border-slate-200 bg-slate-50/50 py-3.5 pl-11 pr-10 text-sm text-slate-900 transition-all duration-200 hover:border-slate-300 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 cursor-pointer">
                             <option value="">-- Semua Pembimbing --</option>
                             @foreach($pembimbingList as $pembimbing)
-                                <option value="{{ $pembimbing->id }}">{{ $pembimbing->user->name }}</option>
+                            <option value="{{ $pembimbing->id }}">{{ $pembimbing->user->name }}</option>
                             @endforeach
                         </select>
                         <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400">
-                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
                         </div>
                     </div>
                 </div>
@@ -46,36 +50,95 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                             </svg>
                         </div>
-                        
+
                         {{-- Select Input --}}
                         <select name="peserta_profile_id" id="peserta_profile_id" required disabled
                             class="block w-full appearance-none rounded-xl border border-slate-200 bg-slate-50/50 py-3.5 pl-11 pr-10 text-sm text-slate-900 transition-all duration-200 hover:border-slate-300 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 cursor-pointer disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 disabled:opacity-70 disabled:hover:border-slate-200">
                             <option value="" disabled selected>-- Pilih Pembimbing Terlebih Dahulu --</option>
                             @foreach($pesertaList as $p)
-                                @php
-                                    $hasFinalEvaluation = $p->evaluations->isNotEmpty();
-                                @endphp
-                                <option value="{{ $p->id }}" 
-                                    data-pembimbing-id="{{ $p->pembimbing_id }}"
-                                    data-has-evaluation="{{ $hasFinalEvaluation ? '1' : '0' }}"
-                                    {{ !$hasFinalEvaluation ? 'disabled class=text-slate-400' : '' }}>
-                                    {{ $p->nim }} — {{ $p->user->name }}{{ !$hasFinalEvaluation ? ' (Belum Ada Nilai Final)' : '' }}
-                                </option>
+                            @php
+                            $hasFinalEvaluation = $p->evaluations->isNotEmpty();
+                            @endphp
+                            <option value="{{ $p->id }}"
+                                data-pembimbing-id="{{ $p->pembimbing_id }}"
+                                data-has-evaluation="{{ $hasFinalEvaluation ? '1' : '0' }}"
+                                data-periode="{{ \Carbon\Carbon::parse($p->periode_mulai)->translatedFormat('d F Y') }} - {{ \Carbon\Carbon::parse($p->periode_selesai)->translatedFormat('d F Y') }}"
+                                data-hadir="{{ $p->attendances->where('status','hadir')->count() }}"
+                                data-izin="{{ $p->attendances->where('status','izin')->count() }}"
+                                data-sakit="{{ $p->attendances->where('status','sakit')->count() }}"
+                                data-alpa="{{ $p->attendances->where('status','alpa')->count() }}"
+                                data-nilai="{{ optional($p->evaluations->first())->total_nilai ?? '-' }}"
+                                {{ !$hasFinalEvaluation ? 'disabled class=text-slate-400' : '' }}>
+                                {{ $p->nim }} — {{ $p->user->name }}{{ !$hasFinalEvaluation ? ' (Belum Ada Nilai Final)' : '' }}
+                            </option>
                             @endforeach
                         </select>
 
                         {{-- Custom Arrow Icon --}}
                         <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400">
-                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
                         </div>
                     </div>
                 </div>
 
+                {{-- Bukti Pendukung --}}
+                <div id="infoPeserta"
+                    class="hidden rounded-xl border border-slate-200 bg-slate-50 p-5">
+
+                    <h3 class="font-semibold text-slate-800 mb-4">
+                        Bukti Pendukung Sertifikat
+                    </h3>
+
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+
+                        <div>
+                            <span class="text-slate-500">Status Penilaian</span>
+                            <div id="statusFinal" class="font-semibold">-</div>
+                        </div>
+
+                        <div>
+                            <span class="text-slate-500">Nilai Akhir</span>
+                            <div id="nilaiAkhir" class="font-semibold">-</div>
+                        </div>
+
+                        <div>
+                            <span class="text-slate-500">Periode Magang</span><br>
+                            <strong id="periodeMagang">-</strong>
+                        </div>
+
+                        <div>
+                            <span class="text-slate-500">Hadir</span>
+                            <div id="hadir" class="font-semibold">-</div>
+                        </div>
+
+                        <div>
+                            <span class="text-slate-500">Izin</span>
+                            <div id="izin" class="font-semibold">-</div>
+                        </div>
+
+                        <div>
+                            <span class="text-slate-500">Sakit</span>
+                            <div id="sakit" class="font-semibold">-</div>
+                        </div>
+
+                        <div>
+                            <span class="text-slate-500">Alpa</span>
+                            <div id="alpa" class="font-semibold">-</div>
+                        </div>
+
+                    </div>
+
+                </div>
+
                 {{-- Action Button --}}
                 <div class="mt-2 text-right sm:text-left">
-                    <button type="submit" 
+                    <button type="submit"
                         class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow shadow-blue-500/30 focus:outline-none focus:ring-4 focus:ring-blue-500/20 sm:w-auto">
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
                         Terbitkan Sertifikat
                     </button>
                 </div>
@@ -106,26 +169,30 @@
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @forelse($certificates as $cert)
-                        <tr class="transition-colors hover:bg-slate-50/70 group">
-                            <td class="px-5 py-4 font-medium text-slate-900 group-hover:text-blue-700">{{ $cert->pesertaProfile->user->name }}</td>
-                            <td class="px-5 py-4 text-slate-600 font-mono">{{ $cert->pesertaProfile->nim }}</td>
-                            <td class="px-5 py-4 text-slate-500 tabular-nums">{{ $cert->created_at->format('d/m/Y H:i') }}</td>
-                            <td class="px-5 py-4 text-center">
-                                <a href="{{ route('admin.sertifikat.download', $cert->id) }}" class="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 hover:text-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                                    Unduh
-                                </a>
-                            </td>
-                        </tr>
+                    <tr class="transition-colors hover:bg-slate-50/70 group">
+                        <td class="px-5 py-4 font-medium text-slate-900 group-hover:text-blue-700">{{ $cert->pesertaProfile->user->name }}</td>
+                        <td class="px-5 py-4 text-slate-600 font-mono">{{ $cert->pesertaProfile->nim }}</td>
+                        <td class="px-5 py-4 text-slate-500 tabular-nums">{{ $cert->created_at->format('d/m/Y H:i') }}</td>
+                        <td class="px-5 py-4 text-center">
+                            <a href="{{ route('admin.sertifikat.download', $cert->id) }}" class="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 hover:text-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                </svg>
+                                Unduh
+                            </a>
+                        </td>
+                    </tr>
                     @empty
-                        <tr>
-                            <td colspan="4" class="px-5 py-12 text-center text-slate-500">
-                                <div class="flex flex-col items-center justify-center">
-                                    <svg class="h-10 w-10 text-slate-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                                    Belum ada sertifikat yang diterbitkan.
-                                </div>
-                            </td>
-                        </tr>
+                    <tr>
+                        <td colspan="4" class="px-5 py-12 text-center text-slate-500">
+                            <div class="flex flex-col items-center justify-center">
+                                <svg class="h-10 w-10 text-slate-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                Belum ada sertifikat yang diterbitkan.
+                            </div>
+                        </td>
+                    </tr>
                     @endforelse
                 </tbody>
             </table>
@@ -136,34 +203,65 @@
 
 @push('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
+
         const pembimbingSelect = document.getElementById('pembimbing_id');
         const pesertaSelect = document.getElementById('peserta_profile_id');
         const pesertaOptions = Array.from(pesertaSelect.querySelectorAll('option[data-pembimbing-id]'));
         const defaultOption = pesertaSelect.querySelector('option[value=""]');
 
-        pembimbingSelect.addEventListener('change', function () {
+        // Event peserta 
+        pesertaSelect.addEventListener('change', function() {
+
+            const option = this.options[this.selectedIndex];
+
+            document.getElementById('infoPeserta').classList.remove('hidden');
+
+            document.getElementById('statusFinal').textContent =
+                option.dataset.hasEvaluation == "1" ?
+                "Sudah Final" :
+                "Belum Final";
+
+            document.getElementById('nilaiAkhir').textContent =
+                option.dataset.nilai;
+
+            document.getElementById('periodeMagang').textContent =
+                option.dataset.periode ?? '-';
+
+            document.getElementById('hadir').textContent =
+                option.dataset.hadir;
+
+            document.getElementById('izin').textContent =
+                option.dataset.izin;
+
+            document.getElementById('sakit').textContent =
+                option.dataset.sakit;
+
+            document.getElementById('alpa').textContent =
+                option.dataset.alpa;
+        });
+
+        // Event pembimbing
+        pembimbingSelect.addEventListener('change', function() {
+
             const selectedPembimbing = this.value;
-            
+
             // Bersihkan dropdown
             pesertaSelect.innerHTML = '';
             pesertaSelect.appendChild(defaultOption);
             defaultOption.selected = true;
 
             if (!selectedPembimbing) {
-                // Kunci dropdown peserta jika tidak ada pembimbing dipilih
                 pesertaSelect.disabled = true;
                 defaultOption.textContent = '-- Pilih Pembimbing Terlebih Dahulu --';
                 return;
             }
-            
-            // Buka dropdown peserta
+
             pesertaSelect.disabled = false;
             defaultOption.textContent = '-- Pilih Peserta --';
-            
+
             let hasMatch = false;
 
-            // Masukkan kembali opsi peserta yang cocok
             pesertaOptions.forEach(option => {
                 if (selectedPembimbing === option.getAttribute('data-pembimbing-id')) {
                     pesertaSelect.appendChild(option);
@@ -171,7 +269,6 @@
                 }
             });
 
-            // Jika tidak ada peserta untuk pembimbing tersebut
             if (!hasMatch) {
                 const emptyOpt = document.createElement('option');
                 emptyOpt.disabled = true;
@@ -180,7 +277,7 @@
                 pesertaSelect.appendChild(emptyOpt);
             }
         });
+
     });
 </script>
 @endpush
-

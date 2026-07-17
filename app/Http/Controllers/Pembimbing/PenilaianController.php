@@ -34,6 +34,18 @@ class PenilaianController extends Controller
         $this->authorizePeserta($peserta);
 
         $profile = Auth::user()->pembimbingProfile;
+        $peserta->load([
+            'user',
+            'attendances'
+        ]);
+
+        $rekap = [
+            'hadir' => $peserta->attendances->where('status', 'hadir')->count(),
+            'izin'  => $peserta->attendances->where('status', 'izin')->count(),
+            'sakit' => $peserta->attendances->where('status', 'sakit')->count(),
+            'alpa'  => $peserta->attendances->where('status', 'alpa')->count(),
+        ];
+
         $rubrics = Rubric::query()->orderBy('urutan')->orderBy('id')->get();
 
         $evaluation = Evaluation::query()->firstOrCreate(
@@ -51,7 +63,13 @@ class PenilaianController extends Controller
         $evaluation->load('rubricScores');
         $scoresByRubric = $evaluation->rubricScores->keyBy('rubric_id');
 
-        return view('pembimbing.evaluation.edit', compact('peserta', 'rubrics', 'evaluation', 'scoresByRubric'));
+        return view('pembimbing.evaluation.edit', compact(
+            'peserta',
+            'rubrics',
+            'evaluation',
+            'scoresByRubric',
+            'rekap'
+        ));
     }
 
     public function update(Request $request, PesertaProfile $peserta, EvaluationScoreService $scoreSvc): RedirectResponse

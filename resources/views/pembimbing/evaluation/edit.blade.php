@@ -20,6 +20,101 @@
     </div>
 </div>
 
+{{-- Informasi Pendukung Penilaian --}}
+<div class="mb-6 rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+
+    <div class="bg-slate-50 border-b border-slate-200 px-6 py-4">
+        <h2 class="text-lg font-bold text-slate-800">
+            Data Pendukung Penilaian
+        </h2>
+
+        <p class="text-sm text-slate-500 mt-1">
+            Informasi ini digunakan sebagai data pendukung bagi pembimbing sebelum memberikan penilaian kepada peserta magang.
+        </p>
+    </div>
+
+    <div class="p-6">
+
+        <div class="grid grid-cols-2 gap-6">
+
+            <div>
+                <span class="text-slate-500 text-sm">
+                    Program Magang
+                </span>
+
+                <p class="font-semibold text-slate-800">
+                    {{ $peserta->jenis_program }}
+                </p>
+            </div>
+
+            <div>
+                <span class="text-slate-500 text-sm">
+                    Periode Magang
+                </span>
+
+                <p class="font-semibold text-slate-800">
+                    {{ \Carbon\Carbon::parse($peserta->periode_mulai)->translatedFormat('d F Y') }}
+                    -
+                    {{ \Carbon\Carbon::parse($peserta->periode_selesai)->translatedFormat('d F Y') }}
+                </p>
+            </div>
+
+        </div>
+
+        <hr class="my-5">
+
+        <h3 class="font-semibold text-slate-800 mb-3">
+            Rekap Kehadiran
+        </h3>
+
+        <div class="grid grid-cols-4 gap-4">
+
+            <div class="rounded-lg bg-green-50 border border-green-200 p-4 text-center">
+                <div class="text-sm text-slate-500">Hadir</div>
+                <div class="text-2xl font-bold text-green-600">
+                    {{ $rekap['hadir'] }}
+                </div>
+            </div>
+
+            <div class="rounded-lg bg-blue-50 border border-blue-200 p-4 text-center">
+                <div class="text-sm text-slate-500">Izin</div>
+                <div class="text-2xl font-bold text-blue-600">
+                    {{ $rekap['izin'] }}
+                </div>
+            </div>
+
+            <div class="rounded-lg bg-yellow-50 border border-yellow-200 p-4 text-center">
+                <div class="text-sm text-slate-500">Sakit</div>
+                <div class="text-2xl font-bold text-yellow-600">
+                    {{ $rekap['sakit'] }}
+                </div>
+            </div>
+
+            <div class="rounded-lg bg-red-50 border border-red-200 p-4 text-center">
+                <div class="text-sm text-slate-500">Alpa</div>
+                <div class="text-2xl font-bold text-red-600">
+                    {{ $rekap['alpa'] }}
+                </div>
+            </div>
+
+        </div>
+
+        <div class="mt-6 rounded-xl bg-blue-50 border border-blue-200 p-4">
+
+            <h4 class="font-semibold text-blue-900 mb-2">
+                Catatan Penilaian
+            </h4>
+
+            <p class="text-sm text-blue-800 leading-relaxed">
+                Penilaian diberikan berdasarkan hasil observasi pembimbing terhadap kinerja peserta selama melaksanakan kegiatan magang sesuai dengan rubrik penilaian yang telah ditentukan. Rekap kehadiran ditampilkan sebagai informasi pendukung untuk memberikan gambaran mengenai tingkat kedisiplinan dan keaktifan peserta selama periode magang.
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
 <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden w-full">
     <div class="bg-slate-50/50 border-b border-slate-100 px-6 py-4 sm:px-8">
         <h2 class="text-lg font-bold text-slate-800">Formulir Rubrik Penilaian</h2>
@@ -51,8 +146,16 @@
                         </td>
                         <td class="px-4 py-3 text-center">
                             <div class="relative">
-                                <input type="number" step="0.01" min="0" max="100" name="nilai_{{ $r->id }}" id="nilai_{{ $r->id }}"
-                                    value="{{ old('nilai_'.$r->id, $sc?->nilai ?? null) }}" required placeholder="0 - 100"
+                                <input type="number"
+                                    step="0.01"
+                                    min="0"
+                                    max="100"
+                                    name="nilai_{{ $r->id }}"
+                                    id="nilai_{{ $r->id }}"
+                                    value="{{ old('nilai_'.$r->id, $sc?->nilai ?? null) }}"
+                                    required
+                                    placeholder="0 - 100"
+                                    {{ $evaluation->is_final ? 'readonly' : '' }}
                                     class="nilai-input block w-full rounded-lg border border-slate-300 py-2 pl-3 pr-10 text-right font-mono text-sm text-slate-900 focus:border-blue-500 focus:ring-blue-500 placeholder:text-slate-300">
                                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
                                     <span class="text-xs font-medium text-slate-400">pt</span>
@@ -78,7 +181,12 @@
 
         <div class="border-t border-slate-100 pt-8">
             <label class="mb-2 block text-sm font-bold text-slate-800">Komentar Akhir <span class="text-xs font-normal text-slate-400 ml-1">(Catatan evaluasi untuk peserta)</span></label>
-            <textarea name="komentar_final" rows="4" placeholder="Tuliskan umpan balik atau komentar evaluasi kinerja peserta di sini..." class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition-all placeholder:text-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-slate-50/50 focus:bg-white">{{ old('komentar_final', $evaluation->komentar_final) }}</textarea>
+            <textarea
+                name="komentar_final"
+                rows="4"
+                {{ $evaluation->is_final ? 'readonly' : '' }}
+                placeholder="Tuliskan umpan balik..."
+                class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition-all placeholder:text-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-slate-50/50 focus:bg-white">{{ old('komentar_final', $evaluation->komentar_final) }}</textarea>
         </div>
 
         <div class="rounded-xl border border-blue-200 bg-blue-50 p-4 relative overflow-hidden">
@@ -97,8 +205,9 @@
                     type="checkbox"
                     name="is_final"
                     value="1"
+                    {{ old('is_final', $evaluation->is_final) ? 'checked' : '' }}
+                    {{ $evaluation->is_final ? 'disabled' : '' }}
                     class="mt-1 h-5 w-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
-
                 <div>
                     <p class="font-semibold text-slate-800">
                         Finalisasi Penilaian
@@ -112,15 +221,22 @@
         </div>
 
         <div class="flex items-center justify-end gap-3 pt-2">
-            <a href="{{ route('pembimbing.evaluation.index') }}" class="rounded-xl px-5 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100 transition-colors">Batal</a>
-            <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 hover:bg-blue-700 transition-all">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
+
+            <a href="{{ route('pembimbing.evaluation.index') }}"
+                class="rounded-xl px-5 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100 transition-colors">
+                Kembali
+            </a>
+
+            @unless($evaluation->is_final)
+            <button type="submit"
+                class="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white">
                 Simpan Penilaian
             </button>
+            @endunless
+
         </div>
-    </form>
+</div>
+</form>
 </div>
 @endsection
 
