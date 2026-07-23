@@ -24,7 +24,7 @@
                 <h2 class="text-lg font-bold text-slate-800">Detail Kehadiran</h2>
                 <p class="text-sm text-slate-500">{{ \Carbon\Carbon::parse($selectedDate)->translatedFormat('l, d F Y') }}</p>
             </div>
-            
+
             <div class="grid grid-cols-3 gap-2">
                 <div class="flex flex-col items-center justify-center bg-emerald-50 rounded-lg py-1.5 border border-emerald-100 text-center">
                     <span class="text-lg font-bold text-emerald-700">{{ $summary['hadir'] }}</span>
@@ -46,61 +46,70 @@
                 <thead>
                     <tr class="bg-slate-50/70 text-xs font-semibold uppercase tracking-wide text-slate-500 border-y border-slate-100">
                         <th class="px-5 py-3">Nama Peserta</th>
-                        <th class="px-5 py-3">Instansi</th>
                         <th class="px-5 py-3">Status</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @forelse($pesertaList as $p)
-                        <tr class="hover:bg-slate-50/50 transition-colors group">
-                            <td class="px-5 py-4">
-                                <div class="flex items-center gap-3">
-                                    @if($p->user->avatar_path)
-                                        <img src="{{ route('storage.file', $p->user->avatar_path) }}" alt="Avatar" class="h-8 w-8 rounded-full object-cover border border-slate-200 shadow-sm">
-                                    @else
-                                        <div class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-xs font-bold tracking-wider text-blue-700 shadow-sm ring-1 ring-white">
-                                            {{ strtoupper(substr($p->user->name, 0, 1)) }}
-                                        </div>
-                                    @endif
-                                    <div>
-                                        <p class="font-semibold text-slate-900 group-hover:text-blue-700 transition">{{ $p->user->name }}</p>
-                                        <p class="mt-0.5 font-mono text-xs text-slate-500">{{ $p->nim ?? '-' }}</p>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-5 py-4 text-slate-600 text-xs">
-                                {{ $p->instansi ?? '-' }}
-                            </td>
-                            <td class="px-5 py-4">
-                                @if($p->status_hari_ini === 'hadir')
-                                    <div class="flex flex-col gap-1 items-start">
-                                        <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
-                                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span> Hadir
-                                        </span>
-                                        @if($p->check_in_at)
-                                        <span class="text-[10px] text-slate-500 font-mono">Masuk: {{ \Carbon\Carbon::parse($p->check_in_at)->format('H:i') }}</span>
-                                        @endif
-                                        @if($p->check_out_at)
-                                        <span class="text-[10px] text-slate-500 font-mono">Pulang: {{ \Carbon\Carbon::parse($p->check_out_at)->format('H:i') }}</span>
-                                        @endif
-                                    </div>
-                                @elseif(in_array($p->status_hari_ini, ['izin', 'sakit']))
-                                    <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700 ring-1 ring-inset ring-amber-600/20">
-                                        <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span> {{ ucfirst($p->status_hari_ini) }}
-                                    </span>
+                    <tr class="hover:bg-slate-50/50 transition-colors group">
+                        <td class="px-5 py-4">
+                            <div class="flex items-center gap-3">
+                                @if($p->user->avatar_path)
+                                <img src="{{ route('storage.file', $p->user->avatar_path) }}" alt="Avatar" class="h-8 w-8 rounded-full object-cover border border-slate-200 shadow-sm">
                                 @else
-                                    <span class="inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-700 ring-1 ring-inset ring-rose-600/20">
-                                        <span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span> Belum Absen / Alpa
-                                    </span>
+                                <div class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-xs font-bold tracking-wider text-blue-700 shadow-sm ring-1 ring-white">
+                                    {{ strtoupper(substr($p->user->name, 0, 1)) }}
+                                </div>
                                 @endif
-                            </td>
-                        </tr>
+                                <div>
+                                    <p class="font-semibold text-slate-900 group-hover:text-blue-700 transition">{{ $p->user->name }}</p>
+                                    <p class="mt-0.5 font-mono text-xs text-slate-500">{{ $p->nim ?? '-' }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-5 py-4">
+                            @if($p->status_hari_ini === 'hadir')
+                            <div class="flex flex-col gap-1 items-start">
+                                <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span> Hadir
+                                </span>
+                                @if($p->check_in_at)
+                                <span class="text-[10px] font-mono text-slate-700">
+                                    Masuk: {{ \Carbon\Carbon::parse($p->check_in_at)->format('H:i') }}
+                                </span>
+                                @endif
+                                @if($p->check_out_at)
+                                <div class="flex items-center gap-2 text-[10px] font-mono">
+                                    <span>
+                                        Pulang:
+                                        {{ \Carbon\Carbon::parse($p->check_out_at)->format('H:i') }}
+                                    </span>
+
+                                    @if($p->is_checkout_otomatis)
+                                    <span class="rounded bg-blue-100 px-1.5 py-0.5 text-blue-700 font-semibold">
+                                        Auto
+                                    </span>
+                                    @endif
+                                </div>
+                                @endif
+                            </div>
+                            @elseif(in_array($p->status_hari_ini, ['izin', 'sakit']))
+                            <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700 ring-1 ring-inset ring-amber-600/20">
+                                <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span> {{ ucfirst($p->status_hari_ini) }}
+                            </span>
+                            @else
+                            <span class="inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-700 ring-1 ring-inset ring-rose-600/20">
+                                <span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span> Belum Absen / Alpa
+                            </span>
+                            @endif
+                        </td>
+                    </tr>
                     @empty
-                        <tr>
-                            <td colspan="3" class="px-5 py-10 text-center text-slate-500">
-                                Belum ada peserta bimbingan.
-                            </td>
-                        </tr>
+                    <tr>
+                        <td colspan="3" class="px-5 py-10 text-center text-slate-500">
+                            Belum ada peserta bimbingan.
+                        </td>
+                    </tr>
                     @endforelse
                 </tbody>
             </table>
@@ -126,63 +135,88 @@
                 <tr class="border-b border-slate-100 bg-slate-50/70 text-xs font-semibold uppercase tracking-wide text-slate-500">
                     <th class="px-6 py-4">Nama Peserta</th>
                     <th class="px-6 py-4 text-center">Hadir</th>
+                    <th class="px-6 py-4 text-center">Terlambat</th>
+                    <th class="px-6 py-4 text-center">Jam Kerja</th>
                     <th class="px-6 py-4 text-center">Izin</th>
                     <th class="px-6 py-4 text-center">Sakit</th>
                     <th class="px-6 py-4 text-center">Alpa</th>
-                    <th class="px-6 py-4 text-center">Total Hari Aktif</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-50">
                 @forelse($pesertaList as $p)
-                    <tr class="hover:bg-slate-50/50 transition-colors">
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-3">
-                                @if($p->user->avatar_path)
-                                    <img src="{{ route('storage.file', $p->user->avatar_path) }}" alt="Avatar" class="h-9 w-9 rounded-full object-cover border border-slate-200 shadow-sm">
-                                @else
-                                    <div class="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100 text-xs font-bold tracking-wider text-blue-700 shadow-sm ring-1 ring-white">
-                                        {{ strtoupper(substr($p->user->name, 0, 1)) }}
-                                    </div>
-                                @endif
-                                <div>
-                                    <p class="font-semibold text-slate-900">{{ $p->user->name }}</p>
-                                    <p class="mt-0.5 font-mono text-xs text-slate-500">{{ $p->nim ?? '-' }}</p>
-                                </div>
+                <tr class="hover:bg-slate-50/50 transition-colors">
+
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            @if($p->user->avatar_path)
+                            <img src="{{ route('storage.file', $p->user->avatar_path) }}"
+                                class="h-9 w-9 rounded-full object-cover border border-slate-200 shadow-sm">
+                            @else
+                            <div class="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-700">
+                                {{ strtoupper(substr($p->user->name,0,1)) }}
                             </div>
-                        </td>
-                        <td class="px-6 py-4 text-center">
-                            <span class="inline-flex min-w-[32px] items-center justify-center rounded-md bg-emerald-100 px-2 py-1 text-xs font-bold text-emerald-700 ring-1 ring-emerald-200">
-                                {{ $p->count_hadir }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 text-center">
-                            <span class="inline-flex min-w-[32px] items-center justify-center rounded-md bg-blue-100 px-2 py-1 text-xs font-bold text-blue-700 ring-1 ring-blue-200">
-                                {{ $p->count_izin }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 text-center">
-                            <span class="inline-flex min-w-[32px] items-center justify-center rounded-md bg-amber-100 px-2 py-1 text-xs font-bold text-amber-700 ring-1 ring-amber-200">
-                                {{ $p->count_sakit }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 text-center">
-                            <span class="inline-flex min-w-[32px] items-center justify-center rounded-md bg-rose-100 px-2 py-1 text-xs font-bold text-rose-700 ring-1 ring-rose-200">
-                                {{ $p->count_alpa }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 text-center">
-                            <span class="text-sm font-bold text-slate-700">
-                                {{ $p->count_hadir + $p->count_izin + $p->count_sakit + $p->count_alpa }}
-                            </span>
-                            <span class="text-[10px] text-slate-400 font-medium">Hari</span>
-                        </td>
-                    </tr>
+                            @endif
+
+                            <div>
+                                <p class="font-semibold text-slate-900">
+                                    {{ $p->user->name }}
+                                </p>
+                                <p class="text-xs text-slate-500">
+                                    {{ $p->nim }}
+                                </p>
+                            </div>
+                        </div>
+                    </td>
+
+                    {{-- Hadir --}}
+                    <td class="px-6 py-4 text-center">
+                        <span class="inline-flex min-w-[32px] items-center justify-center rounded-md bg-emerald-100 px-2 py-1 text-xs font-bold text-emerald-700">
+                            {{ $p->count_hadir }}
+                        </span>
+                    </td>
+
+                    {{-- Terlambat --}}
+                    <td class="px-6 py-4 text-center">
+                        <span class="inline-flex min-w-[32px] items-center justify-center rounded-md bg-orange-100 px-2 py-1 text-xs font-bold text-orange-700">
+                            {{ $p->count_terlambat }}
+                        </span>
+                    </td>
+
+                    {{-- Jam Kerja Kurang --}}
+                    <td class="px-6 py-4 text-center">
+                        <span class="inline-flex min-w-[32px] items-center justify-center rounded-md bg-yellow-100 px-2 py-1 text-xs font-bold text-yellow-700">
+                            {{ $p->count_jam_kurang }}
+                        </span>
+                    </td>
+
+                    {{-- Izin --}}
+                    <td class="px-6 py-4 text-center">
+                        <span class="inline-flex min-w-[32px] items-center justify-center rounded-md bg-blue-100 px-2 py-1 text-xs font-bold text-blue-700">
+                            {{ $p->count_izin }}
+                        </span>
+                    </td>
+
+                    {{-- Sakit --}}
+                    <td class="px-6 py-4 text-center">
+                        <span class="inline-flex min-w-[32px] items-center justify-center rounded-md bg-amber-100 px-2 py-1 text-xs font-bold text-amber-700">
+                            {{ $p->count_sakit }}
+                        </span>
+                    </td>
+
+                    {{-- Alpa --}}
+                    <td class="px-6 py-4 text-center">
+                        <span class="inline-flex min-w-[32px] items-center justify-center rounded-md bg-rose-100 px-2 py-1 text-xs font-bold text-rose-700">
+                            {{ $p->count_alpa }}
+                        </span>
+                    </td>
+
+                </tr>
                 @empty
-                    <tr>
-                        <td colspan="6" class="px-6 py-10 text-center text-slate-500">
-                            Data rekapitulasi belum tersedia.
-                        </td>
-                    </tr>
+                <tr>
+                    <td colspan="7" class="px-6 py-10 text-center text-slate-500">
+                        Data rekapitulasi belum tersedia.
+                    </td>
+                </tr>
                 @endforelse
             </tbody>
         </table>
@@ -217,7 +251,7 @@
             dayCellClassNames: function(arg) {
                 var d = arg.date;
                 var cellDateStr = '';
-                
+
                 // FullCalendar bisa mewakili hari menggunakan UTC Midnight (00:00:00Z) 
                 // atau Local Midnight (00:00:00 lokal). Pendekatan ini aman untuk dua skenario.
                 if (d.getUTCHours() === 0 && d.getUTCMinutes() === 0) {

@@ -14,12 +14,13 @@ class KalenderAbsensiController extends Controller
 {
     public function index(Request $request): View
     {
+        Attendance::autoCheckout();
         $profile = Auth::user()->pembimbingProfile;
-        
+
         // Determine the selected date (default is today)
         $selectedDateString = $request->input('date');
         $monthYearString = $request->input('month_year');
-        
+
         try {
             if ($selectedDateString) {
                 $selectedDate = Carbon::createFromFormat('Y-m-d', $selectedDateString);
@@ -38,21 +39,24 @@ class KalenderAbsensiController extends Controller
             $pesertaList = PesertaProfile::query()
                 ->with(['user'])
                 ->where('pembimbing_id', $profile->id)
+                ->whereDate('periode_mulai', '<=', $selectedDate)
+                ->whereDate('periode_selesai', '>=', $selectedDate)
                 ->orderBy('nim')
                 ->get();
-                
+
             $attendances = Attendance::query()
                 ->whereIn('peserta_profile_id', $pesertaList->pluck('id'))
                 ->whereDate('tanggal', $selectedDate->format('Y-m-d'))
                 ->get()
                 ->keyBy('peserta_profile_id');
-                
+
             $pesertaList->each(function ($p) use ($attendances) {
                 if ($attendances->has($p->id)) {
                     $att = $attendances->get($p->id);
                     $p->status_hari_ini = $att->status;
                     $p->check_in_at = $att->check_in_at;
                     $p->check_out_at = $att->check_out_at;
+                    $p->is_checkout_otomatis = $att->is_checkout_otomatis;
                 } else {
                     $p->status_hari_ini = 'belum';
                     $p->check_in_at = null;
@@ -87,12 +91,22 @@ class KalenderAbsensiController extends Controller
                 $p->count_izin = $pAtts->where('status', 'izin')->count();
                 $p->count_sakit = $pAtts->where('status', 'sakit')->count();
                 $p->count_alpa = $pAtts->where('status', 'alpa')->count();
+                $p->count_terlambat = $pAtts
+                    ->where('status', 'hadir')
+                    ->where('is_terlambat', true)
+                    ->count();
+                $p->count_jam_kurang = $pAtts
+                    ->where('status', 'hadir')
+                    ->filter(function ($att) {
+                        return $att->durasi_kerja_menit < 420;
+                    })
+                    ->count();
             });
         }
 
         return view('pembimbing.calendar.index', compact(
-            'selectedDate', 
-            'pesertaList', 
+            'selectedDate',
+            'pesertaList',
             'summary'
         ));
     }

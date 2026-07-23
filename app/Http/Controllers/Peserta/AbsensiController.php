@@ -64,8 +64,28 @@ class AbsensiController extends Controller
             return response()->json(['success' => false, 'message' => 'Profil peserta tidak ditemukan.'], 404);
         }
 
+        // --- PROTEKSI MASA MAGANG SELESAI ---
+        if ($profile->periode_selesai && Carbon::today()->greaterThan(Carbon::parse($profile->periode_selesai))) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Masa magang Anda telah selesai. Anda tidak dapat melakukan absensi lagi.'
+            ]);
+        }
+
         if (! Carbon::today()->isWeekday()) {
             return response()->json(['success' => false, 'message' => 'Absensi hanya pada hari kerja (Senin–Jumat).']);
+        }
+
+        $now = now();
+
+        $jamMulai = Carbon::today()->setTime(7, 0);
+        $batasCheckIn = Carbon::today()->setTime(16, 0);
+
+        if ($now->lt($jamMulai) || $now->gt($batasCheckIn)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Absensi hanya dapat dilakukan mulai pukul 07.00 WIB'
+            ]);
         }
 
         // Validasi input koordinat
@@ -103,11 +123,16 @@ class AbsensiController extends Controller
             return response()->json(['success' => false, 'message' => 'Anda sudah check-in hari ini.']);
         }
 
+        $checkIn = now();
+
+        $batasTerlambat = Carbon::today()->setTime(8, 10);
+
         $att->update([
-            'check_in_at'  => now(),
-            'check_in_lat' => $lat,
-            'check_in_lng' => $lng,
-            'status'       => 'hadir',
+            'check_in_at'        => $checkIn,
+            'check_in_lat'       => $lat,
+            'check_in_lng'       => $lng,
+            'status'             => 'hadir',
+            'is_terlambat'       => $checkIn->gt($batasTerlambat),
         ]);
 
         return response()->json([
@@ -123,6 +148,14 @@ class AbsensiController extends Controller
         $profile = Auth::user()->pesertaProfile;
         if (! $profile) {
             return response()->json(['success' => false, 'message' => 'Profil peserta tidak ditemukan.'], 404);
+        }
+
+        // --- PROTEKSI MASA MAGANG SELESAI ---
+        if ($profile->periode_selesai && Carbon::today()->greaterThan(Carbon::parse($profile->periode_selesai))) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Masa magang Anda telah selesai. Anda tidak dapat melakukan absensi lagi.'
+            ]);
         }
 
         // Validasi input koordinat
@@ -157,10 +190,16 @@ class AbsensiController extends Controller
             return response()->json(['success' => false, 'message' => 'Anda sudah check-out hari ini.']);
         }
 
+        $checkOut = now();
+
+        $durasiKerja = $att->check_in_at->diffInMinutes($checkOut);
+
         $att->update([
-            'check_out_at'  => now(),
-            'check_out_lat' => $lat,
-            'check_out_lng' => $lng,
+            'check_out_at'          => $checkOut,
+            'check_out_lat'         => $lat,
+            'check_out_lng'         => $lng,
+            'durasi_kerja'          => $durasiKerja,
+            'is_checkout_otomatis'  => false,
         ]);
 
         return response()->json([

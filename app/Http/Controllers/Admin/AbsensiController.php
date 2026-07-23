@@ -12,6 +12,7 @@ class AbsensiController extends Controller
 {
     public function index(Request $request): View
     {
+        Attendance::autoCheckout();
         $pesertaId = $request->integer('peserta_id') ?: null;
         $pembimbingId = $request->integer('pembimbing_id') ?: null;
 
@@ -44,6 +45,9 @@ class AbsensiController extends Controller
         $pesertaListQuery = PesertaProfile::query()->with(['user', 'pembimbing'])->orderBy('nim');
         // ... sisa code ke bawah tetap sama ...
 
+        if ($pembimbingId) {
+            $pesertaListQuery->where('pembimbing_id', $pembimbingId);
+        }
         $pesertaList = $pesertaListQuery->get();
 
         $pembimbingList = \App\Models\PembimbingProfile::query()->with('user')->orderBy('id')->get();

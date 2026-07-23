@@ -36,7 +36,7 @@ class PenilaianController extends Controller
         $profile = Auth::user()->pembimbingProfile;
         $peserta->load([
             'user',
-            'attendances'
+            'attendances' => fn($q) => $q->latest() // Mengurutkan kehadiran dari yang terbaru
         ]);
 
         $rekap = [

@@ -121,8 +121,8 @@
                 <div class="flex flex-col items-center justify-center rounded-xl bg-blue-50 py-8 text-center border border-blue-200 shadow-sm">
                     <h3 class="text-xl font-bold text-blue-900 mb-2">🎉 Absensi hari ini selesai</h3>
                     <p class="text-blue-700">
-                        <strong>Masuk:</strong> <span class="font-mono">{{ $attendanceToday->check_in_at->format('H:i') }}</span> WIB &nbsp;·&nbsp;
-                        <strong>Pulang:</strong> <span class="font-mono">{{ $attendanceToday->check_out_at->format('H:i') }}</span> WIB
+                        <strong>Masuk:</strong> <span class="font-mono">{{ $attendanceToday->check_in_at?->format('H:i') ?? '-' }}</span> WIB &nbsp;·&nbsp;
+                        <strong>Pulang:</strong> <span class="font-mono">{{ $attendanceToday->check_out_at?->format('H:i') ?? '-' }}</span> WIB
                     </p>
                 </div>
                 @endif
